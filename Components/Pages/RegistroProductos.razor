@@ -1,0 +1,163 @@
+﻿@page "/registroproductos"
+@rendermode InteractiveServer
+
+<PageTitle> Registro de Productos </PageTitle>
+
+<h3>Registro de Productos</h3>
+
+@if (mostrarError)
+{
+    <div class="alert alert-danger" role="alert">
+        El número de inventario ya existe. No se guardó el registro.
+    </div>
+}
+
+<div>
+    <span> No. de inventario</span>
+    <input type="number" placeholder="0" class="form-control flex-grow-1" @bind="numeroInventario" />
+</div>
+
+<div class="mt-3">
+    <span> Descripción </span>
+    <input type="text" placeholder="Escribe la descripción del producto" class="form-control flex-grow-1" @bind="descripcion" />
+</div>
+
+<div class="mt-3">
+    <span> Departamento</span> <br />
+    
+    <input type="radio" name="departamento" checked="@(departamento == "Frutas")" @onclick="SeleccionarFrutas" />
+    <label class="me-2">Frutas</label>
+    
+    <input type="radio" name="departamento" checked="@(departamento == "Verduras")" @onclick="SeleccionarVerduras" />
+    <label class="me-2">Verduras</label>
+    
+    <input type="radio" name="departamento" checked="@(departamento == "Lácteos")" @onclick="SeleccionarLacteos" />
+    <label>Lácteos</label>
+</div>
+
+<div class="mt-4 mb-3">
+    <button class="btn btn-success me-1" @onclick="GuardarDatos">Guardar datos</button>
+    <button class="btn btn-success me-1" @onclick="MostrarCompleta">Lista completa</button>
+    <button class="btn btn-success me-1" @onclick="MostrarFrutas">Lista de frutas</button>
+    <button class="btn btn-success me-1" @onclick="MostrarVerduras">Lista de verduras</button>
+    <button class="btn btn-success" @onclick="MostrarLacteos">Lista de lácteos</button>
+</div>
+
+@if (mostrarTabla)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>No. Inventario</th>
+                <th>Descripción</th>
+                <th>Departamento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < invAMostrar.Count; i++)
+            {
+                <tr>
+                    <td>@invAMostrar[i]</td>
+                    <td>@descAMostrar[i]</td>
+                    <td>@depAMostrar[i]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-success" @onclick="CerrarLista">Cerrar lista</button>
+}
+
+@code {
+    private int numeroInventario;
+    private string descripcion = "";
+    private string departamento = "Frutas";
+    
+    private bool mostrarError = false;
+    private bool mostrarTabla = false;
+
+    private List<int> inventarios = new List<int>();
+    private List<string> descripciones = new List<string>();
+    private List<string> departamentos = new List<string>();
+
+    private List<int> invAMostrar = new List<int>();
+    private List<string> descAMostrar = new List<string>();
+    private List<string> depAMostrar = new List<string>();
+
+    private void SeleccionarFrutas()
+    {
+        departamento = "Frutas";
+    }
+
+    private void SeleccionarVerduras()
+    {
+        departamento = "Verduras";
+    }
+
+    private void SeleccionarLacteos()
+    {
+        departamento = "Lácteos";
+    }
+    private void GuardarDatos()
+    {
+        mostrarError = false;
+        if (inventarios.Contains(numeroInventario))
+        {
+            mostrarError = true;
+            return;
+        }
+        inventarios.Add(numeroInventario);
+        descripciones.Add(descripcion);
+        departamentos.Add(departamento);
+
+        numeroInventario = 0;
+        descripcion = "";
+        departamento = "Frutas";
+    }
+
+    private void MostrarCompleta()
+    {
+        invAMostrar = new List<int>(inventarios);
+        descAMostrar = new List<string>(descripciones);
+        depAMostrar = new List<string>(departamentos);
+        
+        mostrarTabla = true;
+    }
+
+    private void MostrarFrutas()
+    {
+        FiltrarLista("Frutas");
+    }
+
+    private void MostrarVerduras()
+    {
+        FiltrarLista("Verduras");
+    }
+
+    private void MostrarLacteos()
+    {
+        FiltrarLista("Lácteos");
+    }
+
+    private void FiltrarLista(string depBuscado)
+    {
+        invAMostrar.Clear();
+        descAMostrar.Clear();
+        depAMostrar.Clear();
+
+        for (int i = 0; i < departamentos.Count; i++)
+        {
+            if (departamentos[i] == depBuscado)
+            {
+                invAMostrar.Add(inventarios[i]);
+                descAMostrar.Add(descripciones[i]);
+                depAMostrar.Add(departamentos[i]);
+            }
+        }
+        mostrarTabla = true;
+    }
+
+    private void CerrarLista()
+    {
+        mostrarTabla = false;
+    }
+}
